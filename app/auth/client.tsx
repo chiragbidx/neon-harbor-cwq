@@ -21,15 +21,6 @@ import {
   signUpWithPassword,
 } from "./actions";
 
-// Purpose: Client UI for /auth.
-// Use this file for auth mode toggles, form interactivity, and browser-only logic.
-//
-// Replication pattern for new interactive pages:
-// - Keep server mutations in `actions.ts`.
-// - Bind actions here with `useActionState`.
-// - Use local state only for presentation/interaction (tabs, steps, toggles).
-// - Keep forms simple: collect inputs and submit to a server action.
-
 type AuthMode = "signin" | "signup";
 
 type ClientProps = {
@@ -44,13 +35,8 @@ const initialActionState: AuthActionState = {
 };
 
 export default function Client({ redirectTo, flashStatus, flashMessage }: ClientProps) {
-  // UI state: only controls which form is shown.
   const [mode, setMode] = useState<AuthMode>("signin");
 
-  // Server action wiring:
-  // - `state` carries serializable feedback (error/success message).
-  // - `action` is assigned directly to form `action={...}`.
-  // - `pending` drives submit button loading state.
   const [signInState, signInAction, signInPending] = useActionState(
     signInWithPassword,
     initialActionState
@@ -69,7 +55,6 @@ export default function Client({ redirectTo, flashStatus, flashMessage }: Client
     }
   }, [activeState._devUrl]);
 
-  // URL hash keeps the auth mode linkable (`/auth#signin` or `/auth#signup`).
   useEffect(() => {
     const syncFromHash = () => {
       const hash = window.location.hash.replace("#", "").toLowerCase();
@@ -89,19 +74,26 @@ export default function Client({ redirectTo, flashStatus, flashMessage }: Client
   };
 
   const content = useMemo(() => {
-    // View-model for mode-specific heading/description copy.
     if (mode === "signup") {
       return {
         id: "signup",
-        title: "Create account",
-        description: "Start your free account in less than a minute.",
+        title: "Create your LeadBase account",
+        description: "Start organizing contacts and deals",
+        mainBtnLabel: "Create Account",
+        helper: "Already have an account? Sign in.",
+        helperLink: "/auth#signin",
+        helperLinkText: "Sign in",
       };
     }
 
     return {
       id: "signin",
-      title: "Sign in",
-      description: "Use your email and password to continue.",
+      title: "Sign in to LeadBase",
+      description: "Access your CRM dashboard",
+      mainBtnLabel: "Sign In",
+      helper: "Don't have an account? Sign up for free.",
+      helperLink: "/auth#signup",
+      helperLinkText: "Sign up for free",
     };
   }, [mode]);
 
@@ -113,21 +105,20 @@ export default function Client({ redirectTo, flashStatus, flashMessage }: Client
           <div className="relative z-10 flex h-full flex-col justify-between">
             <div className="space-y-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
-                Panda Access
+                LeadBase Access
               </p>
               <h1 className="max-w-sm text-4xl font-semibold leading-tight tracking-tight">
-                Launch faster with one workspace for your team.
+                The simple CRM to organize your contacts and deals.
               </h1>
               <p className="max-w-md text-sm text-muted-foreground">
-                Secure auth, polished interface, and a clean onboarding flow built
-                for production teams.
+                Fast onboarding, secure authentication, and a distraction-free dashboard to help you grow smarter.
               </p>
             </div>
 
             <div className="relative overflow-hidden rounded-2xl border border-secondary/70 bg-background/80 p-3 shadow-lg">
               <Image
                 src="/demo-img.jpg"
-                alt="Panda product preview"
+                alt="LeadBase product preview"
                 className="h-full w-full rounded-xl object-cover"
                 width={1200}
                 height={900}
@@ -149,7 +140,7 @@ export default function Client({ redirectTo, flashStatus, flashMessage }: Client
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  Sign in
+                  Sign In
                 </button>
                 <button
                   type="button"
@@ -160,7 +151,7 @@ export default function Client({ redirectTo, flashStatus, flashMessage }: Client
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  Sign up
+                  Get Started Free
                 </button>
               </div>
 
@@ -184,7 +175,6 @@ export default function Client({ redirectTo, flashStatus, flashMessage }: Client
               ) : null}
 
               {mode === "signin" ? (
-                // Sign-in form submits directly to server action.
                 <form className="space-y-4" action={signInAction}>
                   {redirectTo && <input type="hidden" name="redirectTo" value={redirectTo} />}
                   <div className="space-y-2">
@@ -215,11 +205,10 @@ export default function Client({ redirectTo, flashStatus, flashMessage }: Client
                   </div>
 
                   <Button type="submit" className="w-full" disabled={isPending}>
-                    {isPending ? "Signing in..." : "Sign in"}
+                    {isPending ? "Signing in..." : content.mainBtnLabel}
                   </Button>
                 </form>
               ) : (
-                // Sign-up form submits directly to server action.
                 <form className="space-y-4" action={signUpAction}>
                   {redirectTo && <input type="hidden" name="redirectTo" value={redirectTo} />}
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -268,14 +257,16 @@ export default function Client({ redirectTo, flashStatus, flashMessage }: Client
                   </div>
 
                   <Button type="submit" className="w-full" disabled={isPending}>
-                    {isPending ? "Creating account..." : "Create account"}
+                    {isPending ? "Creating account..." : content.mainBtnLabel}
                   </Button>
                 </form>
               )}
 
               {activeState.status === "success" && activeState.message ? (
                 <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400" role="status">
-                  {activeState.message}
+                  {activeState.message === "Check your inbox for a confirmation email."
+                    ? "Check your inbox for a LeadBase confirmation email."
+                    : activeState.message}
                 </p>
               ) : null}
 
@@ -284,6 +275,16 @@ export default function Client({ redirectTo, flashStatus, flashMessage }: Client
                   {activeState.message}
                 </p>
               ) : null}
+
+              <div className="text-center pt-4">
+                <span className="text-sm text-muted-foreground">{content.helper}{" "}</span>
+                <Link
+                  href={content.helperLink}
+                  className="text-sm font-semibold text-primary hover:underline"
+                >
+                  {content.helperLinkText}
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>
