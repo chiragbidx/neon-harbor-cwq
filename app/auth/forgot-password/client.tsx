@@ -1,8 +1,5 @@
 "use client";
 
-// Purpose: Client UI for /auth/forgot-password.
-// Collects email, submits to forgotPasswordAction, shows confirmation.
-
 import Link from "next/link";
 import { useActionState, useEffect } from "react";
 
@@ -38,10 +35,9 @@ export default function Client() {
       <section className="mx-auto flex min-h-[720px] w-full max-w-md items-center justify-center">
         <Card className="w-full border-secondary/70 shadow-xl">
           <CardHeader className="space-y-1">
-            <CardTitle>Forgot password</CardTitle>
+            <CardTitle>Reset your LeadBase password</CardTitle>
             <CardDescription>
-              Enter your email and we&apos;ll send you a link to reset your
-              password.
+              Enter your email to receive a reset link.
             </CardDescription>
           </CardHeader>
 
@@ -49,7 +45,9 @@ export default function Client() {
             {state.status === "success" ? (
               <div className="space-y-4">
                 <p className="text-sm text-emerald-700 dark:text-emerald-400">
-                  {state.message}
+                  {state.message === "Check your inbox for a confirmation email."
+                    ? "Check your inbox for a LeadBase confirmation email."
+                    : state.message}
                 </p>
                 <Link
                   href="/auth#signin"
@@ -73,7 +71,7 @@ export default function Client() {
                   </div>
 
                   <Button type="submit" className="w-full" disabled={pending}>
-                    {pending ? "Sending..." : "Send reset link"}
+                    {pending ? "Sending..." : "Send Reset Link"}
                   </Button>
                 </form>
 
