@@ -9,6 +9,10 @@ import {
   Hammer,
   Settings,
   Users,
+  Contacts,
+  Briefcase,
+  ListChecks,
+  BarChart2
 } from "lucide-react";
 import {
   Collapsible,
@@ -25,14 +29,12 @@ type NavItem = {
 
 const sections: { title: string; items: NavItem[] }[] = [
   {
-    title: "Platform",
+    title: "CRM",
     items: [
-      { label: "Overview", href: "/dashboard", icon: Home },
-      {
-        label: "Feature",
-        href: "/dashboard/feature",
-        icon: Hammer,
-      },
+      { label: "Dashboard", href: "/dashboard", icon: Home },
+      { label: "Contacts", href: "/dashboard/contacts", icon: Contacts },
+      { label: "Deals", href: "/dashboard/deals", icon: Briefcase },
+      { label: "Overview", href: "/dashboard/overview", icon: BarChart2 },
     ],
   },
   {
